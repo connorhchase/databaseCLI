@@ -24,7 +24,7 @@ if "%choice%" == "1" (
 	if "!insertcols!" == "*" (set "insertcols=") else (set "insertcols=(!insertcols!)")
 	echo Please type the values you would like to insert into those columns, in the same order as you entered the columns, separated by commas.
 	set /P insertvals=Enter:
-	echo psql -U postgres -d supermarket -c "INSERT INTO !insertTable!!insertcols! VALUES (!insertvals!)"
+	psql -U postgres -d supermarket -c "INSERT INTO !insertTable!!insertcols! VALUES (!insertvals!)"
 )
 if "%choice%" == "2" (
 	echo You have selected: Delete.
@@ -32,17 +32,17 @@ if "%choice%" == "2" (
 	set /P deleteTable=Enter: 
 	echo Please type the conditions for deletion.
 	set /P deleteWhere=Enter:
-	echo psql -U postgres -d supermarket -c "DELETE FROM !deleteTable! WHERE !deleteWhere!"
+	psql -U postgres -d supermarket -c "DELETE FROM !deleteTable! WHERE !deleteWhere!"
 )
 if "%choice%" == "3" (
 	echo You have selected: Update.
 	echo Please type the table name you would like to update.
 	set /P updateTable=Enter: 
-	echo Please type what column(s) you would like update, and what to update the data to, using commas to separate the equalities.
+	echo Please type what column/columns you would like update, and what to update the data to, using commas to separate the equalities.
 	set /P updateSet=Enter:
-	echo Please type the conditions for deletion.
+	echo Please type the conditions for updating.
 	set /P updateWhere=Enter:
-	echo psql -U postgres -d supermarket -c "UPDATE !updateTable! SET !updateSet! WHERE !updateWhere!"
+	psql -U postgres -d supermarket -c "UPDATE !updateTable! SET !updateSet! WHERE !updateWhere!"
 )
 if "%choice%" == "4" (
 	echo You have selected: Search.
@@ -52,13 +52,13 @@ if "%choice%" == "4" (
 	set /P searchCols=Enter:
 	echo Please type the conditions for the search.
 	set /P searchWhere=Enter:
-	echo psql -U postgres -d supermarket -c "SELECT !searchCols! FROM !searchTable! WHERE !searchWhere!"
+	psql -U postgres -d supermarket -c "SELECT !searchCols! FROM !searchTable! WHERE !searchWhere!"
 )
 if "%choice%" == "5" (
 	echo You have selected: Aggregate Functions.
 	echo Please type the table name you would like to aggregate from.
 	set /P aggTable=Enter: 
-	echo Please type the names of the column you would like to aggregate, separated by commas, using * for all columns (count only).
+	echo Please type the names of the column you would like to aggregate, separated by commas, using * for all columns if using count only.
 	set /P aggCol=Enter:
 	echo Please type the number of the aggregate function you would like to use.
 	echo 1. Average
@@ -67,20 +67,20 @@ if "%choice%" == "5" (
 	echo 4. Min
 	echo 5. Sum
 	set /P aggFunc=Enter:
-	if %aggFunc% == "1" (
-		echo psql -U postgres -d supermarket -c "SELECT AVG(!aggCol!) FROM !aggTable!"
+	if !aggFunc! == "1" (
+		psql -U postgres -d supermarket -c "SELECT AVG(!aggCol!) FROM !aggTable!"
 	)
-	if %aggFunc% == "2" (
-		echo psql -U postgres -d supermarket -c "SELECT COUNT(!aggCol!) FROM !aggTable!"
+	if !aggFunc! == "2" (
+		psql -U postgres -d supermarket -c "SELECT COUNT(!aggCol!) FROM !aggTable!"
 	)
-	if %aggFunc% == "3" (
-		echo psql -U postgres -d supermarket -c "SELECT MAX(!aggCol!) FROM !aggTable!"
+	if !aggFunc! == "3" (
+		psql -U postgres -d supermarket -c "SELECT MAX(!aggCol!) FROM !aggTable!"
 	)
-	if %aggFunc% == "4" (
-		echo psql -U postgres -d supermarket -c "SELECT MIN(!aggCol!) FROM !aggTable!"
+	if !aggFunc! == "4" (
+		psql -U postgres -d supermarket -c "SELECT MIN(!aggCol!) FROM !aggTable!"
 	)
-	if %aggFunc% == "5" (
-		echo psql -U postgres -d supermarket -c "SELECT SUM(!aggCol!) FROM !aggTable!"
+	if !aggFunc! == "5" (
+		psql -U postgres -d supermarket -c "SELECT SUM(!aggCol!) FROM !aggTable!"
 	)
 )
 if "%choice%" == "6" (
@@ -95,11 +95,11 @@ if "%choice%" == "6" (
 	echo 1. Ascending
 	echo 2. Descending
 	set /P ascDesc=Enter:
-	if %ascDesc% == "1" (
-		echo psql -U postgres -d supermarket -c "SELECT !sortCols! FROM !sortTable! ORDER BY !sortingCol! ASC"
+	if !ascDesc! == "1" (
+		psql -U postgres -d supermarket -c "SELECT !sortCols! FROM !sortTable! ORDER BY !sortingCol! ASC"
 	)
-	if %ascDesc% == "2" (
-		echo psql -U postgres -d supermarket -c "SELECT !sortCols! FROM !sortTable! ORDER BY !sortingCol! DESC"
+	if !ascDesc! == "2" (
+		psql -U postgres -d supermarket -c "SELECT !sortCols! FROM !sortTable! ORDER BY !sortingCol! DESC"
 	)
 )
 if "%choice%" == "7" (
@@ -115,34 +115,101 @@ if "%choice%" == "7" (
 	echo 2. Left Join
 	echo 3. Right Join
 	set /P joinType=Enter:
-	if %joinType% == "1" (
+	if !joinType! == "1" (
 		echo Please choose the first column name to join on
 		set /P joinCol1=Enter:
 		echo Please choose the second column name to join on
 		set /P joinCol2=Enter:
-		echo psql -U postgres -d supermarket -c "SELECT !joinCols! FROM !joinTable! INNER JOIN !joinTable2! ON !joinTable!.!joinCol1! = !joinTable2!.!joinCol2!"
+		psql -U postgres -d supermarket -c "SELECT !joinCols! FROM !joinTable! INNER JOIN !joinTable2! ON !joinTable!.!joinCol1! = !joinTable2!.!joinCol2!"
 	)
-	if %joinType% == "2" (
+	if !joinType! == "2" (
 		echo Please choose the first column name to join on
 		set /P joinCol1=Enter:
 		echo Please choose the second column name to join on
 		set /P joinCol2=Enter:
-		echo psql -U postgres -d supermarket -c "SELECT !joinCols! FROM !joinTable! LEFT JOIN !joinTable2! ON !joinTable!.!joinCol1! = !joinTable2!.!joinCol2!"
+		psql -U postgres -d supermarket -c "SELECT !joinCols! FROM !joinTable! LEFT JOIN !joinTable2! ON !joinTable!.!joinCol1! = !joinTable2!.!joinCol2!"
 	)
-	if %joinType% == "3" (
+	if !joinType! == "3" (
 		echo Please choose the first column name to join on
 		set /P joinCol1=Enter:
 		echo Please choose the second column name to join on
 		set /P joinCol2=Enter:
-		echo psql -U postgres -d supermarket -c "SELECT !joinCols! FROM !joinTable! RIGHT JOIN !joinTable2! ON !joinTable!.!joinCol1! = !joinTable2!.!joinCol2!"
+		psql -U postgres -d supermarket -c "SELECT !joinCols! FROM !joinTable! RIGHT JOIN !joinTable2! ON !joinTable!.!joinCol1! = !joinTable2!.!joinCol2!"
 	)
-
 )
 if "%choice%" == "8" (
 	echo You have selected: Grouping.
+	echo Please type the table name you would like to search through in the subquery.
+	set /P groupTable=Enter: 
+	echo Please type the names of the columns you would like to receive in the subquery, separated by commas, using * for all columns.
+	set /P groupSearchCols=Enter:
+	echo Please type the number that corresponds with the desired aggregate function to include in the columns
+	echo 1. Average
+	echo 2. Count
+	echo 3. Max
+	echo 4. Min
+	echo 5. Sum
+	echo 6. None
+	set /P groupAggFunc=Enter:
+	if NOT !groupAggFunc! == "6" (
+		echo Please type the column to be aggregated, or * for all columns, if using count.
+		set /P groupAggCol=Enter:
+		if !groupAggFunc! == "1" (
+			!subSearchCols! = !subSearchCols!, AVG(!groupAggCol!)
+		)
+		if !groupAggFunc! == "2" (
+			!subSearchCols! = !subSearchCols!, COUNT(!groupAggCol!)
+		)
+		if !groupAggFunc! == "3" (
+			!subSearchCols! = !subSearchCols!, MAX(!groupAggCol!)
+		)
+		if !groupAggFunc! == "4" (
+			!subSearchCols! = !subSearchCols!, MIN(!groupAggCol!)
+		)
+		if !groupAggFunc! == "5" (
+			!subSearchCols! = !subSearchCols!, SUM(!groupAggCol!)
+		)
+	)
+	echo Please type the columns you would like to group by, separated by a comma.
+	set /P groupGroupCols=Enter:
+	psql -U postgres -d supermarket -c "SELECT !groupSearchCols! FROM !groupTable! GROUP BY !groupGroupCols!"
 )
 if "%choice%" == "9" (
 	echo You have selected: Subqueries.
+	echo Please type the table name you would like to search through in the subquery.
+	set /P subSearchTable=Enter: 
+	echo Please type the names of the columns you would like to receive in the subquery, separated by commas, using * for all columns.
+	set /P subSearchCols=Enter:
+	echo Please type the conditions for the search.
+	set /P subSearchWhere=Enter:
+	echo Please type the table name you would like to query as usual.
+	set /P superSearchTable
+	echo Please type the names of the columns you would like to receive in the regular query, separated by commas, using * for all columns.
+	set /P superSearchCols
+	echo Please type the number for the subquery function you would like to use
+	echo 1. In
+	echo 2. Not In
+	echo 3. Exists
+	echo 4. Equality, only when subquery returns a single output.
+	set /P subqueryOp
+	if !subqueryOp! = "1" (
+		echo Please type the name of column used for comparison to subquery
+		set /P superSearchEquality=Enter:
+		psql -U postgres -d supermarket -c "SELECT !superSearchCols! FROM !superSearchTable! WHERE !superSearchEquality! IN (SELECT !subSearchCols! FROM !subSearchTable! WHERE !subSearchWhere!)"
+	)
+	if !subqueryOp! = "2" (
+		echo Please type the name of column used for comparison to subquery
+		set /P superSearchEquality=Enter:
+		psql -U postgres -d supermarket -c "SELECT !superSearchCols! FROM !superSearchTable! WHERE !superSearchEquality! NOT IN (SELECT !subSearchCols! FROM !subSearchTable! WHERE !subSearchWhere!)"
+	)
+	if !subqueryOp! = "3" (
+		psql -U postgres -d supermarket -c "SELECT !superSearchCols! FROM !superSearchTable! WHERE EXISTS (SELECT !subSearchCols! FROM !subSearchTable! WHERE !subSearchWhere!)"
+	)
+	if !subqueryOp! = "4" (
+		echo Please type the name of column used for comparison to subquery
+		set /P superSearchEquality=Enter:
+		psql -U postgres -d supermarket -c "SELECT !superSearchCols! FROM !superSearchTable! WHERE !superSearchEquality! = (SELECT !subSearchCols! FROM !subSearchTable! WHERE !subSearchWhere!)"
+	)
 )
 if "%choice%" == "10" (
 	echo You have selected: Transactions.
