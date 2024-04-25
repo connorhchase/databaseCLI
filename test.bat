@@ -1,5 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
+:start
 echo Welcome to the database CLI interface! Note: This must be run as administrator, as the postgresql folder requires administrator permissions to change.
 echo Select an option:
 echo 1. Insert Data
@@ -151,31 +152,31 @@ if "%choice%" == "8" (
 	echo 5. Sum
 	echo 6. None
 	set /P groupAggFunc=Enter:
-	if NOT !groupAggFunc! == "6" (
+	if !groupAggFunc! == "6" (
 		echo Please type the column to be aggregated, or * for all columns, if using count.
 		set /P groupAggCol=Enter:
 		if !groupAggFunc! == "1" (
-			!subSearchCols! = !subSearchCols!, AVG(!groupAggCol!)
+			!subSearchCols! = !subSearchCols!, AVG^(!groupAggCol!^)
 		)
 		if !groupAggFunc! == "2" (
-			!subSearchCols! = !subSearchCols!, COUNT(!groupAggCol!)
+			!subSearchCols! = !subSearchCols!, COUNT^(!groupAggCol!^)
 		)
 		if !groupAggFunc! == "3" (
-			!subSearchCols! = !subSearchCols!, MAX(!groupAggCol!)
+			!subSearchCols! = !subSearchCols!, MAX^(!groupAggCol!^)
 		)
 		if !groupAggFunc! == "4" (
-			!subSearchCols! = !subSearchCols!, MIN(!groupAggCol!)
+			!subSearchCols! = !subSearchCols!, MIN^(!groupAggCol!^)
 		)
 		if !groupAggFunc! == "5" (
-			!subSearchCols! = !subSearchCols!, SUM(!groupAggCol!)
+			!subSearchCols! = !subSearchCols!, SUM^(!groupAggCol!^)
 		)
 	)
-	echo Please type the columns you would like to group by, separated by a comma.
+	Please type the columns you would like to group by, separated by a comma.
 	set /P groupGroupCols=Enter:
 	psql -U postgres -d supermarket -c "SELECT !groupSearchCols! FROM !groupTable! GROUP BY !groupGroupCols!"
 )
 if "%choice%" == "9" (
-	echo You have selected: Subqueries.
+	echo You have selected: Subquery.
 	echo Please type the table name you would like to search through in the subquery.
 	set /P subSearchTable=Enter: 
 	echo Please type the names of the columns you would like to receive in the subquery, separated by commas, using * for all columns.
@@ -183,29 +184,29 @@ if "%choice%" == "9" (
 	echo Please type the conditions for the search.
 	set /P subSearchWhere=Enter:
 	echo Please type the table name you would like to query as usual.
-	set /P superSearchTable
+	set /P superSearchTable=Enter:
 	echo Please type the names of the columns you would like to receive in the regular query, separated by commas, using * for all columns.
-	set /P superSearchCols
+	set /P superSearchCols=Enter:
 	echo Please type the number for the subquery function you would like to use
 	echo 1. In
 	echo 2. Not In
 	echo 3. Exists
 	echo 4. Equality, only when subquery returns a single output.
-	set /P subqueryOp
-	if !subqueryOp! = "1" (
+	set /P subqueryOp=Enter:
+	if !subqueryOp! == "1" (
 		echo Please type the name of column used for comparison to subquery
 		set /P superSearchEquality=Enter:
 		psql -U postgres -d supermarket -c "SELECT !superSearchCols! FROM !superSearchTable! WHERE !superSearchEquality! IN (SELECT !subSearchCols! FROM !subSearchTable! WHERE !subSearchWhere!)"
 	)
-	if !subqueryOp! = "2" (
+	if !subqueryOp! == "2" (
 		echo Please type the name of column used for comparison to subquery
 		set /P superSearchEquality=Enter:
 		psql -U postgres -d supermarket -c "SELECT !superSearchCols! FROM !superSearchTable! WHERE !superSearchEquality! NOT IN (SELECT !subSearchCols! FROM !subSearchTable! WHERE !subSearchWhere!)"
 	)
-	if !subqueryOp! = "3" (
+	if !subqueryOp! == "3" (
 		psql -U postgres -d supermarket -c "SELECT !superSearchCols! FROM !superSearchTable! WHERE EXISTS (SELECT !subSearchCols! FROM !subSearchTable! WHERE !subSearchWhere!)"
 	)
-	if !subqueryOp! = "4" (
+	if !subqueryOp! == "4" (
 		echo Please type the name of column used for comparison to subquery
 		set /P superSearchEquality=Enter:
 		psql -U postgres -d supermarket -c "SELECT !superSearchCols! FROM !superSearchTable! WHERE !superSearchEquality! = (SELECT !subSearchCols! FROM !subSearchTable! WHERE !subSearchWhere!)"
@@ -213,12 +214,17 @@ if "%choice%" == "9" (
 )
 if "%choice%" == "10" (
 	echo You have selected: Transactions.
+	echo This isn't implemented, choose something else please!
 )
 if "%choice%" == "11" (
 	echo You have selected: Error Handling.
+	echo This isn't implemented, choose something else please!
 )
 if "%choice%" == "12" (
 	echo You have selected: Exit.
+	goto end
 )
+goto start
+:end
 echo Thank you, goodbye!
 cmd /k
